@@ -1,43 +1,19 @@
 /*
- * Modified by Shayla Lee Feb 2024
+ * Shayla Lee Feb 2024
  * 
+ * This code is the protocol which controls UnsTable 
  * 
- *  ************************************************************************************
- * SendRawDemo.cpp - demonstrates sending IR codes with sendRaw
+ *************************************************************************************
+ * This code uses Arduino-IRremote Library https://github.com/Arduino-IRremote/Arduino-IRremote 
+ * and this file is based on SendRawDemo.cpp, referencing ReceiveAndSendDistanceWidth.cpp, 
+ * starting on February 15, 2024
+ * 
+ * The signals in this file address a Eufy Robovac 11s, collected using RecieveDemo.ino from 
+ * the same library.
+ * 
+ *************************************************************************************
+ * 
  *
- * This example shows how to send a RAW signal using the IRremote library.
- * The example signal is actually a 32 bit NEC signal.
- * Remote Control button: LGTV Power On/Off.
- * Hex Value: 0x20DF10EF, 32 bits
- *
- * If it is a supported protocol, it is more efficient to use the protocol send function
- * (here sendNEC) to send the signal.
- *
- *  This file is part of Arduino-IRremote https://github.com/Arduino-IRremote/Arduino-IRremote.
- *
- ************************************************************************************
- * MIT License
- *
- * Copyright (c) 2020-2022 Armin Joachimsmeyer
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- ************************************************************************************
  */
 #include <Arduino.h>
 
