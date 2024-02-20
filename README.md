@@ -7,7 +7,12 @@ https://github.com/Arduino-IRremote/Arduino-IRremote to transmit IR signals
 through an Infrared LED that were collected using RecieveDemo.ino from the same
 library.
 
-## Sample IrSender code
+## Automated How?
+
+Two sets of random IR signals (corresponding with remote buttons) are sent to
+UnsTable every 3 seconds.
+
+## Sample `IrSender` code
 
 ```
 IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450,
@@ -25,6 +30,8 @@ IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450,
 - <RepeatPeriodMillis>: ms between signal sends needs to be >200 or so to be
   smooth ~500 starts to look jumpy but would be quite chaotic
 - <numberOfRepeats>: Might start at 0 (i.e. 3 -> 4 signals sent)
+
+### Notes
 
 One send of forward/UP is around 200 (RepeatPeriodMillis), 4 (numberOfRepeats)
 for any of the other button sends
