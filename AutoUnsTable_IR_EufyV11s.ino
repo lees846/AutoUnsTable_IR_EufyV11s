@@ -1,7 +1,7 @@
 /*
  * Shayla Lee Feb 2024
  * 
- * This code is the protocol which controls UnsTable 
+ * This code is the protocol which controls UnsTable. 
  * 
  *************************************************************************************
  * This code uses Arduino-IRremote Library https://github.com/Arduino-IRremote/Arduino-IRremote 
@@ -10,6 +10,9 @@
  * 
  * The signals in this file address a Eufy Robovac 11s, collected using RecieveDemo.ino from 
  * the same library.
+ * 
+ * https://roboticsbackend.com/arduino-turn-led-on-and-off-with-button/ was referenced to
+ * make an on/off button. Press button once to start, then press and hold to stop. 
  * 
  *************************************************************************************
  * 
@@ -27,36 +30,63 @@
 #include "PinDefinitionsAndMore.h" // Define macros for input and output pin etc.
 #include <IRremote.hpp>
 
+# define ON_BUTTON_PIN 5 
+byte lastButtonState;
+byte systemState = 0;
+
 const String robotMoves[] = {"up", "right", "down", "left"};
 
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
-    Serial.begin(115200);
-    
-    #if defined(__AVR_ATmega328PU__) || defined(SERIAL_PORT_USBVIRTUAL) || defined(SERIAL_USB) /*stm32duino*/|| defined(USBCON) /*STM32_stm32*/|| defined(SERIALUSB_PID) || defined(ARDUINO_attiny3217)
-       delay(4000); // To be able to connect Serial monitor after reset or power up and before first print out. Do not wait for an attached Serial Monitor!
-    #endif
-    // Just to know which program is running on the Arduino
-    Serial.println(("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
-    Serial.println(("Send IR signals at pin " STR(IR_SEND_PIN)));
+  pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
+  pinMode(ON_BUTTON_PIN, INPUT);
+  lastButtonState = digitalRead(ON_BUTTON_PIN);
+  
+  Serial.begin(115200);
+  
+  #if defined(__AVR_ATmega328PU__) || defined(SERIAL_PORT_USBVIRTUAL) || defined(SERIAL_USB) /*stm32duino*/|| defined(USBCON) /*STM32_stm32*/|| defined(SERIALUSB_PID) || defined(ARDUINO_attiny3217)
+     delay(4000); // To be able to connect Serial monitor after reset or power up and before first print out. Do not wait for an attached Serial Monitor!
+  #endif
+  // Just to know which program is running on the Arduino
+  Serial.println(("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+  Serial.println(("Send IR signals at pin " STR(IR_SEND_PIN)));
 
-    IrSender.begin(); // Start with IR_SEND_PIN as send pin and enable feedback LED at default feedback LED pin
+  IrSender.begin(); // Start with IR_SEND_PIN as send pin and enable feedback LED at default feedback LED pin
 }
-
+ 
 void loop() {
-  // Select two random integers between 0 and length of robotMoves[]
-  const int firstMove = int(random(4));
-  const int secondMove = int(random(4));
-  Serial.println(firstMove);
-  Serial.println(secondMove);
+  // Check if the system is on
+  // Press button once to start, press and hold to stop 
+  byte buttonState = digitalRead(ON_BUTTON_PIN);
+  if (buttonState != lastButtonState) {
+    lastButtonState = buttonState;
+    if (buttonState == HIGH) {
+      if (systemState == 0) {
+        systemState = 1;
+        Serial.println("SYSTEM ON");
+      } 
+      else {
+        systemState = 0;
+        Serial.println("SYSTEM OFF");
+      }
+    }
+  }
 
-  // Move UnsTable depending on which index was chosen for each move
-  moveUnsTable(firstMove);
-  moveUnsTable(secondMove);
-
-  // Wait 3 seconds between each set of moves
-  delay(3000);
-
+  // If the system is on, move UnsTable
+  if (systemState == 1) {
+    // Select two random integers between 0 and length of robotMoves[]
+    const int firstMove = int(random(4));
+    const int secondMove = int(random(4));
+    Serial.println(firstMove);
+    Serial.println(secondMove);
+  
+    // Move UnsTable depending on which index was chosen for each move
+    moveUnsTable(firstMove);
+    moveUnsTable(secondMove);
+  
+    // Wait 3 seconds between each set of moves
+    delay(3000);
+  }
+  lastButtonState = buttonState; // updates button state
 }
 
 // Sends IR signal to UnsTable depending on which move is passed
