@@ -91,7 +91,7 @@ void turnRight() {
   Serial.println(("Send Eufy RIGHT Command"));
   Serial.flush();
   uint32_t rightRawData[]={0xB4687616, 0x9800};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 4);
+  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
   delay(500);
 }
 
@@ -100,7 +100,7 @@ void moveDown() {
   Serial.println(("Send Eufy DOWN Command"));
   Serial.flush();
   uint32_t downRawData[]={0x34687E16, 0x1400};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 500, 3);
+  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
   delay(500);
 }
 
@@ -109,7 +109,7 @@ void turnLeft() {
   Serial.println(("Send Eufy LEFT Command"));
   Serial.flush();
   uint32_t leftRawData[]={0xD4687C16, 0xE700};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 500, 3);
+  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
   delay(500);
 }
 
