@@ -34,7 +34,9 @@
 byte lastButtonState;
 byte systemState = 0;
 
-const String robotMoves[] = {"up", "right", "down", "left"};
+// TODO: add more of each, bias against moving forward
+const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight"}; 
+const int totalMoves = 5;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
@@ -74,21 +76,25 @@ void loop() {
   // If the system is on, move UnsTable
   if (systemState == 1) {
     // Select two random integers between 0 and length of robotMoves[]
-    const int firstMove = int(random(4));
-    const int secondMove = int(random(4));
+    const int firstMove = int(random(totalMoves));
+    const int secondMove = int(random(totalMoves));
+    
+    // Set a random time interval between movements between 1 & 5 seconds
     long timeBetween = (random(1000, 5000)); 
-    Serial.println(firstMove);
-    Serial.println(secondMove);
+    
+    Serial.println(robotMoves[firstMove]);
+    Serial.println(robotMoves[secondMove]);
     Serial.println(timeBetween);
   
     // Move UnsTable depending on which index was chosen for each move
-    moveUnsTable(firstMove);
-    moveUnsTable(secondMove);
+    moveUnsTable(1);
+//    moveUnsTable(secondMove);
   
     // Wait between each set of moves
     delay(timeBetween);
   }
-  lastButtonState = buttonState; // updates button state
+  // Update on/off button state
+  lastButtonState = buttonState; 
 }
 
 // Sends IR signal to UnsTable depending on which move is passed
@@ -104,6 +110,12 @@ void moveUnsTable(int whichMove) {
   }
   else if(robotMoves[whichMove] == "left"){
     turnLeft();
+  } 
+  else if(robotMoves[whichMove] == "spinLeft"){
+    spinLeft();
+  }
+  else if(robotMoves[whichMove] == "spinRight"){
+    spinRight();
   }
   
   // add logic for each new element in robotMoves
@@ -123,7 +135,10 @@ void turnRight() {
   Serial.println(("Send Eufy RIGHT Command"));
   Serial.flush();
   uint32_t rightRawData[]={0xB4687616, 0x9800};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
+  for (int moveCount = 0; moveCount < 3; moveCount++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+    delay(100);
+  }
   delay(500);
 }
 
@@ -132,7 +147,10 @@ void moveDown() {
   Serial.println(("Send Eufy DOWN Command"));
   Serial.flush();
   uint32_t downRawData[]={0x34687E16, 0x1400};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
+  for (int moveCount = 0; moveCount < 3; moveCount++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+    delay(100);
+  }
   delay(500);
 }
 
@@ -141,16 +159,36 @@ void turnLeft() {
   Serial.println(("Send Eufy LEFT Command"));
   Serial.flush();
   uint32_t leftRawData[]={0xD4687C16, 0xE700};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
+  for (int moveCount = 0; moveCount < 3; moveCount++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 0);
+    delay(100);
+  }
   delay(500);
 }
 
-// Spin aka do a 360 (Left)
+// Spin Left aka do a 360º (Left)
 void spinLeft() {
   Serial.println(("Send Eufy LEFT 360 Command"));
   Serial.flush();
   uint32_t leftRawData[]={0xD4687C16, 0xE700};
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
+  // Around 21 turns make a 360º spin
+  for (int moveCount = 0; moveCount < 20; moveCount++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+    delay(100);
+  }
+  delay(500);
+}
+
+// Spin Right aka do a 360º (Right) 
+void spinRight() {
+  Serial.println(("Send Eufy LEFT 360 Command"));
+  Serial.flush();
+  uint32_t rightRawData[]={0xB4687616, 0x9800};
+  // Around 21 turns make a 360º spin
+  for (int moveCount = 0; moveCount < 20; moveCount++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+    delay(100);
+  }
   delay(500);
 }
 
