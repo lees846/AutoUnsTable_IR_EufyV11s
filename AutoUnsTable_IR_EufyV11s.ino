@@ -76,15 +76,17 @@ void loop() {
     // Select two random integers between 0 and length of robotMoves[]
     const int firstMove = int(random(4));
     const int secondMove = int(random(4));
+    long timeBetween = (random(1000, 5000)); 
     Serial.println(firstMove);
     Serial.println(secondMove);
+    Serial.println(timeBetween);
   
     // Move UnsTable depending on which index was chosen for each move
     moveUnsTable(firstMove);
     moveUnsTable(secondMove);
   
-    // Wait 3 seconds between each set of moves
-    delay(3000);
+    // Wait between each set of moves
+    delay(timeBetween);
   }
   lastButtonState = buttonState; // updates button state
 }
@@ -143,6 +145,14 @@ void turnLeft() {
   delay(500);
 }
 
+// Spin aka do a 360 (Left)
+void spinLeft() {
+  Serial.println(("Send Eufy LEFT 360 Command"));
+  Serial.flush();
+  uint32_t leftRawData[]={0xD4687C16, 0xE700};
+  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 1);
+  delay(500);
+}
 
 /**
    * Sample IrSender code (would be found in void loop(){})
