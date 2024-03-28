@@ -34,9 +34,19 @@
 byte lastButtonState;
 byte systemState = 0;
 
-// TODO: add more of each, bias against moving forward
-const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight"}; 
-const int totalMoves = 5;
+//const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight"}; 
+
+// Biased moves list, less likely to move forward or do 360º's
+const String robotMoves[] = {
+  "spinLeft", 
+  "spinRight",
+  "up", "up", "up", "up", "up", "up",
+  "right", "right", "right", "right", "right", "right", "right", "right", "right", "right", 
+  "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down",
+  "left", "left", "left", "left", "left", "left", "left", "left", "left", "left",
+}; 
+// 41 because this number is used for random and it's exclusive to the max
+const int totalMoves = 41;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
@@ -82,13 +92,13 @@ void loop() {
     // Set a random time interval between movements between 1 & 5 seconds
     long timeBetween = (random(1000, 5000)); 
     
-    Serial.println(robotMoves[firstMove]);
-    Serial.println(robotMoves[secondMove]);
+    Serial.println(firstMove);
+    Serial.println(secondMove);
     Serial.println(timeBetween);
   
     // Move UnsTable depending on which index was chosen for each move
-    moveUnsTable(1);
-//    moveUnsTable(secondMove);
+    moveUnsTable(firstMove);
+    moveUnsTable(secondMove);
   
     // Wait between each set of moves
     delay(timeBetween);
