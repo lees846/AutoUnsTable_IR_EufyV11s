@@ -150,7 +150,7 @@ void moveUnsTable(int whichMove) {
 void moveUp() {
   Serial.println(("Send Eufy UP Command"));
   Serial.flush();
-  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &upRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 0, 3);
+  IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &upRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 300, 0);
   delay(500); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
 }
 
