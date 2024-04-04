@@ -34,19 +34,28 @@
 byte lastButtonState;
 byte systemState = 0;
 
-//const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight"}; 
+//const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight", "nod", "shake"}; 
 
-// Biased moves list, less likely to move forward or do 360º's
+// Biased moves list, less likely to move forward or do speical moves
 const String robotMoves[] = {
   "spinLeft", 
   "spinRight",
-  "up", "up", "up", "up", "up", "up",
-  "right", "right", "right", "right", "right", "right", "right", "right", "right", "right", 
-  "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down",
-  "left", "left", "left", "left", "left", "left", "left", "left", "left", "left",
+  "nod",
+  "shake",
+  /* 8 */"up", "up", "up", "up", "up", "up", "up", "up",
+  /* 10 */"right", "right", "right", "right", "right", "right", "right", "right", "right", "right", 
+  /* 11 */"down", "down", "down", "down", "down", "down", "down", "down", "down", "down", "down",
+  /* 10 */"left", "left", "left", "left", "left", "left", "left", "left", "left", "left", 
 }; 
-// 41 because this number is used for random and it's exclusive to the max
-const int totalMoves = 41;
+
+// totalMoves is used for random and it's maximum is exclusive, 1 greater than num of robotMoves
+const int totalMoves = 44;
+
+// Infrared codes to control EUFY
+uint32_t upRawData[]={0x70A8F416, 0x5D00};
+uint32_t downRawData[]={0x34687E16, 0x1400};
+uint32_t rightRawData[]={0xB4687616, 0x9800};
+uint32_t leftRawData[]={0xD4687C16, 0xE700};
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
@@ -127,6 +136,12 @@ void moveUnsTable(int whichMove) {
   else if(robotMoves[whichMove] == "spinRight"){
     spinRight();
   }
+  else if(robotMoves[whichMove] == "nod"){
+    nod();
+  }
+  else if(robotMoves[whichMove] == "shake"){
+    shake();
+  }
   
   // add logic for each new element in robotMoves
 }
@@ -135,7 +150,6 @@ void moveUnsTable(int whichMove) {
 void moveUp() {
   Serial.println(("Send Eufy UP Command"));
   Serial.flush();
-  uint32_t upRawData[]={0x70A8F416, 0x5D00};
   IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &upRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 0, 3);
   delay(500); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
 }
@@ -144,7 +158,6 @@ void moveUp() {
 void turnRight() {
   Serial.println(("Send Eufy RIGHT Command"));
   Serial.flush();
-  uint32_t rightRawData[]={0xB4687616, 0x9800};
   for (int moveCount = 0; moveCount < 3; moveCount++) {
     IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
     delay(100);
@@ -156,7 +169,6 @@ void turnRight() {
 void moveDown() {
   Serial.println(("Send Eufy DOWN Command"));
   Serial.flush();
-  uint32_t downRawData[]={0x34687E16, 0x1400};
   for (int moveCount = 0; moveCount < 3; moveCount++) {
     IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
     delay(100);
@@ -168,7 +180,6 @@ void moveDown() {
 void turnLeft() {
   Serial.println(("Send Eufy LEFT Command"));
   Serial.flush();
-  uint32_t leftRawData[]={0xD4687C16, 0xE700};
   for (int moveCount = 0; moveCount < 3; moveCount++) {
     IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 0);
     delay(100);
@@ -180,7 +191,6 @@ void turnLeft() {
 void spinLeft() {
   Serial.println(("Send Eufy LEFT 360 Command"));
   Serial.flush();
-  uint32_t leftRawData[]={0xD4687C16, 0xE700};
   // Around 21 turns make a 360º spin
   for (int moveCount = 0; moveCount < 20; moveCount++) {
     IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
@@ -191,9 +201,8 @@ void spinLeft() {
 
 // Spin Right aka do a 360º (Right) 
 void spinRight() {
-  Serial.println(("Send Eufy LEFT 360 Command"));
+  Serial.println(("Send Eufy RIGHT 360 Command"));
   Serial.flush();
-  uint32_t rightRawData[]={0xB4687616, 0x9800};
   // Around 21 turns make a 360º spin
   for (int moveCount = 0; moveCount < 20; moveCount++) {
     IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
@@ -201,6 +210,39 @@ void spinRight() {
   }
   delay(500);
 }
+
+// Nod aka move forward and back twice (like nodding)
+void nod() {
+  Serial.println(("Send Eufy NOD Command"));
+  Serial.flush();
+  for (int nods = 0; nods < 2; nods++) {
+    IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &upRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+    delay(200);
+    for (int moveCount = 0; moveCount < 3; moveCount++) {
+      IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &downRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+      delay(100);
+    }
+  }
+  delay(500); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
+}
+
+// Shake aka turn left to right twice (like shaking head "no")
+void shake() {
+  Serial.println(("Send Eufy SHAKE Command"));
+  Serial.flush();
+  for (int shakes = 0; shakes < 2; shakes++) {
+    for (int moveCount = 0; moveCount < 3; moveCount++) {
+      IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &leftRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 200, 0);
+      delay(100);
+    }
+    for (int moveCount = 0; moveCount < 3; moveCount++) {
+      IrSender.sendPulseDistanceWidthFromArray(38, 3000, 2900, 550, 1400, 550, 450, &rightRawData[0], 48, PROTOCOL_IS_LSB_FIRST, 600, 0);
+      delay(100);
+    }
+  }
+  delay(500); // delay must be greater than 5 ms (RECORD_GAP_MICROS), otherwise the receiver sees it as one long signal
+}
+
 
 /**
    * Sample IrSender code (would be found in void loop(){})
