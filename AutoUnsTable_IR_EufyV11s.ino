@@ -1,5 +1,5 @@
 /*
- * Shayla Lee Feb 2024
+ * Shayla Lee April 2024
  * 
  * This code is the protocol which controls UnsTable. 
  * 
@@ -30,9 +30,6 @@
 #include "PinDefinitionsAndMore.h" // Define macros for input and output pin etc.
 #include <IRremote.hpp>
 
-# define ON_BUTTON_PIN 5 
-byte lastButtonState;
-byte systemState = 0;
 
 //const String robotMoves[] = {"up", "right", "down", "left", "spinLeft", "spinRight", "nod", "shake"}; 
 
@@ -59,9 +56,7 @@ uint32_t leftRawData[]={0xD4687C16, 0xE700};
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);   // Feedback on the arduino board builtin LED for when a signal is sent
-  pinMode(ON_BUTTON_PIN, INPUT);
-  lastButtonState = digitalRead(ON_BUTTON_PIN);
-  
+
   Serial.begin(115200);
   
   #if defined(__AVR_ATmega328PU__) || defined(SERIAL_PORT_USBVIRTUAL) || defined(SERIAL_USB) /*stm32duino*/|| defined(USBCON) /*STM32_stm32*/|| defined(SERIALUSB_PID) || defined(ARDUINO_attiny3217)
@@ -75,45 +70,24 @@ void setup() {
 }
  
 void loop() {
-  // Check if the system is on
-  // Press button once to start, press and hold to stop 
-  byte buttonState = digitalRead(ON_BUTTON_PIN);
-  if (buttonState != lastButtonState) {
-    lastButtonState = buttonState;
-    if (buttonState == HIGH) {
-      if (systemState == 0) {
-        systemState = 1;
-        Serial.println("SYSTEM ON");
-      } 
-      else {
-        systemState = 0;
-        Serial.println("SYSTEM OFF");
-      }
-    }
-  }
+  // Move UnsTable
+  // Select two random integers between 0 and length of robotMoves[]
+  const int firstMove = int(random(totalMoves));
+  const int secondMove = int(random(totalMoves));
+  
+  // Set a random time interval between movements between 1 & 5 seconds
+  long timeBetween = (random(1000, 5000)); 
+  
+  Serial.println(firstMove);
+  Serial.println(secondMove);
+  Serial.println(timeBetween);
 
-  // If the system is on, move UnsTable
-  if (systemState == 1) {
-    // Select two random integers between 0 and length of robotMoves[]
-    const int firstMove = int(random(totalMoves));
-    const int secondMove = int(random(totalMoves));
-    
-    // Set a random time interval between movements between 1 & 5 seconds
-    long timeBetween = (random(1000, 5000)); 
-    
-    Serial.println(firstMove);
-    Serial.println(secondMove);
-    Serial.println(timeBetween);
-  
-    // Move UnsTable depending on which index was chosen for each move
-    moveUnsTable(firstMove);
-    moveUnsTable(secondMove);
-  
-    // Wait between each set of moves
-    delay(timeBetween);
-  }
-  // Update on/off button state
-  lastButtonState = buttonState; 
+  // Move UnsTable depending on which index was chosen for each move
+  moveUnsTable(firstMove);
+  moveUnsTable(secondMove);
+
+  // Wait between each set of moves
+  delay(timeBetween);
 }
 
 // Sends IR signal to UnsTable depending on which move is passed
@@ -143,7 +117,7 @@ void moveUnsTable(int whichMove) {
     shake();
   }
   
-  // add logic for each new element in robotMoves
+  // *add logic for each new element here and in robotMoves
 }
 
 // Send UP arrow signal to Eufy from IR LED
